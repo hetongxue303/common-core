@@ -7,3 +7,5 @@ spring:
     import:
       - application-web.yml
       - application-log.yml
+      - application-datasource.yml
+      - application-mybatisPlus.yml
