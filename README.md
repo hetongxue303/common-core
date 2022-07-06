@@ -29,5 +29,5 @@
 > fastjson 1.2.80\
 > springfox-swagger2 3.0\
 > knife4j 3.0.3\
-> velocity 1.6.2
+> velocity 1.6.2\
 > hutool-all 5.8.0
