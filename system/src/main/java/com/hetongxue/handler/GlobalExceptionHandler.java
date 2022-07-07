@@ -30,7 +30,7 @@ public class GlobalExceptionHandler {
         e.printStackTrace();
         log.error(e.getMessage());
         response.setStatus(ResponseCode.INSUFFICIENT_STORAGE.getCode());
-        return Result.Fail()
+        return Result.Error()
                 .setMessage(ResponseCode.INTERNAL_SERVER_ERROR.getMessage())
                 .setCode(ResponseCode.INTERNAL_SERVER_ERROR.getCode());
     }
@@ -43,7 +43,7 @@ public class GlobalExceptionHandler {
         e.printStackTrace();
         log.error(e.getMessage());
         response.setStatus(ResponseCode.INSUFFICIENT_STORAGE.getCode());
-        return Result.Fail()
+        return Result.Error()
                 .setMessage(ResponseCode.INTERNAL_SERVER_ERROR.getMessage())
                 .setCode(ResponseCode.INTERNAL_SERVER_ERROR.getCode());
     }
@@ -55,8 +55,7 @@ public class GlobalExceptionHandler {
     public Result nullPointerException(NullPointerException e) {
         e.printStackTrace();
         log.error(ResponseCode.NULL_POINTER.getMessage());
-
-        return Result.Fail()
+        return Result.Error()
                 .setMessage(ResponseCode.NULL_POINTER.getMessage())
                 .setCode(ResponseCode.NULL_POINTER.getCode());
     }

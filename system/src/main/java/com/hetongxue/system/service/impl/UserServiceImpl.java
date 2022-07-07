@@ -6,6 +6,8 @@ import com.hetongxue.system.domain.User;
 import com.hetongxue.system.mapper.UserMapper;
 import com.hetongxue.system.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,9 +28,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     private final UserMapper userMapper;
 
     @Override
-    @Transactional(propagation = Propagation.SUPPORTS)
-    public List<User> getUserAll() {
-        return userMapper.selectList(null);
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        User user = getUserByUsername(username);
+        if (user == null) throw new UsernameNotFoundException("用户名或密码错误");
+        // 这里获取用户角色、权限信息...
+        getRolePermissionCode(user.getId());
+        return user;
     }
 
     @Override
@@ -38,33 +43,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
+    public String getRolePermissionCode(Long userId) {
+        return null;
+    }
+
+    @Override
     @Transactional(propagation = Propagation.SUPPORTS)
-    public User getUserByUid(Long uid) {
-        return userMapper.selectOne(new QueryWrapper<User>().eq("id", uid));
-    }
-
-    @Override
-    @Transactional(rollbackFor = Exception.class)
-    public int updatePasswordByUid(User user) {
-        return userMapper.updateById(user);
-    }
-
-    @Override
-    @Transactional(rollbackFor = Exception.class)
-    public int updateUserByUid(User user) {
-        return userMapper.updateById(user);
-    }
-
-    @Override
-    @Transactional(rollbackFor = Exception.class)
-    public int deleteUserByUid(Long uid) {
-        return userMapper.deleteById(uid);
-    }
-
-    @Override
-    @Transactional(rollbackFor = Exception.class)
-    public int insertUser(User user) {
-        return userMapper.insert(user);
+    public List<User> getUserAll() {
+        return userMapper.selectList(null);
     }
 
 }
