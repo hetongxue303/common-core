@@ -28,7 +28,7 @@ public class LogAspect {
     /**
      * 切点
      */
-    @Pointcut("@annotation(LogAnnotation)")
+    @Pointcut("@annotation(com.hetongxue.aop.log.LogAnnotation)")
     public void pointcut() {
     }
 
@@ -37,7 +37,7 @@ public class LogAspect {
      */
     @Around("pointcut()")
     public Object log(ProceedingJoinPoint joinPoint) throws Throwable {
-        // 记录开始市场
+        // 记录开始时长
         long beginTime = System.currentTimeMillis();
         // 执行方法
         Object result = joinPoint.proceed();
