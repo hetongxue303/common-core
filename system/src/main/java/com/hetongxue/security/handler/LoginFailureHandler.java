@@ -36,12 +36,22 @@ public class LoginFailureHandler implements AuthenticationFailureHandler {
         if (exception instanceof InternalAuthenticationServiceException) result.setMessage("账户不存在");
         // 认证服务异常
         if (exception instanceof AuthenticationServiceException) result.setMessage(exception.getMessage());
-        // 用户不存在
+        // 用户没有找到
         if (exception instanceof UsernameNotFoundException) result.setMessage(exception.getMessage());
-        // 验证码错误
-        if (exception instanceof CaptchaException)
-            result.setMessage(exception.getMessage())
-                    .setCode(ResponseCode.VALIDATION_ERROR.getCode());
+        // 验证码异常
+        if (exception instanceof CaptchaException) {
+            switch (Integer.parseInt(exception.getMessage())) {
+                case 5002:
+                    result.setCode(ResponseCode.VALIDATION_NULL.getCode()).setMessage(ResponseCode.VALIDATION_NULL.getMessage());
+                    break;
+                case 5001:
+                    result.setCode(ResponseCode.VALIDATION_EXPIRED.getCode()).setMessage(ResponseCode.VALIDATION_EXPIRED.getMessage());
+                    break;
+                case 5000:
+                    result.setCode(ResponseCode.VALIDATION_ERROR.getCode()).setMessage(ResponseCode.VALIDATION_ERROR.getMessage());
+                    break;
+            }
+        }
         response.getWriter().println(new ObjectMapper().writeValueAsString(result));
     }
 

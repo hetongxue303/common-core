@@ -1,5 +1,6 @@
 package com.hetongxue.configuration.security;
 
+import com.hetongxue.lang.Const;
 import com.hetongxue.security.filter.CaptchaFilter;
 import com.hetongxue.security.filter.JwtAuthenticationFilter;
 import com.hetongxue.security.handler.*;
@@ -52,8 +53,9 @@ public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         // 登陆认证处理
         http.authorizeRequests().antMatchers(WHITE_LIST).permitAll().anyRequest().authenticated()
-                .and().formLogin().loginProcessingUrl("/login").usernameParameter("username").passwordParameter("password").successHandler(loginSuccessHandler).failureHandler(loginFailureHandler)
-                .and().logout().logoutUrl("/logout").logoutSuccessHandler(logoutSuccessHandler)
+                .and().formLogin().loginProcessingUrl(Const.LOGIN_PATH).usernameParameter(Const.USERNAME).passwordParameter(Const.PASSWORD)
+                .successHandler(loginSuccessHandler).failureHandler(loginFailureHandler)
+                .and().logout().logoutUrl(Const.LOGOUT_PATH).logoutSuccessHandler(logoutSuccessHandler)
                 .and().exceptionHandling().authenticationEntryPoint(authenticationEntryPoint).accessDeniedHandler(accessDeniedHandler)
                 .and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and().cors()

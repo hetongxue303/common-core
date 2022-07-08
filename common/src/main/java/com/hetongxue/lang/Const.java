@@ -7,6 +7,16 @@ package com.hetongxue.lang;
  * @DateTime: 2022-07-04 16:03
  */
 public class Const {
+    /**
+     * SpringSecurity配置参数
+     */
+    public static final String USERNAME = "username";
+    public static final String PASSWORD = "password";
+    public static final String VERIFICATION_CODE = "code";
+    public static final String REMEMBER_ME = "rememberMe";
+    public static final String LOGIN_PATH = "/login";
+    public static final String LOGOUT_PATH = "/logout";
+
 
     /**
      * 验证码关键字

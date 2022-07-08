@@ -19,7 +19,7 @@
 > 
 > **Storage**\
 > qiniu-java-sdk 7.9.4
-> ---
+>
 > **Security**\
 > jjwt 0.9.1\
 > easy-captcha 1.6.2\

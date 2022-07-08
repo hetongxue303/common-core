@@ -79,6 +79,8 @@ public enum ResponseCode {
 
     // customize
     VALIDATION_ERROR(5000, "ValidationCodeError"),// 验证码错误
+    VALIDATION_EXPIRED(5001, "ValidationCodeExpired"),// 验证码过期
+    VALIDATION_NULL(5002, "ValidationCodeNull"),// 验证码为空
     NULL_POINTER(5001, "NullPointer");// 空指针
 
     private final Integer code;
