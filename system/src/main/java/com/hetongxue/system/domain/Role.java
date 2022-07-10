@@ -23,9 +23,18 @@ import java.io.Serializable;
 @TableName("sys_role")
 public class Role extends PublicProperty implements Serializable {
 
+    /**
+     * 角色ID
+     */
     @TableId(type = IdType.AUTO)
-    private Long id;// 角色ID
-    private String name;// 角色名称
-    private String illustrate;// 角色说明
+    private Long id;
+    /**
+     * 角色名称
+     */
+    private String name;
+    /**
+     * 角色说明
+     */
+    private String illustrate;
 
 }

@@ -1,6 +1,7 @@
 package com.hetongxue.security.filter;
 
 import com.hetongxue.lang.Const;
+import com.hetongxue.system.domain.User;
 import com.hetongxue.system.service.UserService;
 import com.hetongxue.utils.JwtUtils;
 import io.jsonwebtoken.Claims;
@@ -45,13 +46,16 @@ public class JwtAuthenticationFilter extends BasicAuthenticationFilter {
         }
         // token存在时的处理
         Claims claims = jwtUtils.getClaims(token);
-        if (claims == null) throw new JwtException("token 不存在");
-        if (jwtUtils.isExpired(claims)) throw new JwtException("token 已过期");
-        String username = claims.getSubject();// 获取主体
-        // 获取用户的权限信息
-        // ...
-        // 设置token上下文
-        SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(username, null, null));
+        if (claims == null) {
+            throw new JwtException("token 不存在");
+        }
+        if (jwtUtils.isExpired(claims)) {
+            throw new JwtException("token 已过期");
+        }
+        String username = claims.getSubject();
+        User user = (User) userService.loadUserByUsername(username);
+        SecurityContextHolder.getContext()
+                .setAuthentication(new UsernamePasswordAuthenticationToken(username, null, user.getAuthorities()));
         chain.doFilter(request, response);
     }
 

@@ -3,6 +3,8 @@ package com.hetongxue.security.handler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hetongxue.lang.Const;
 import com.hetongxue.response.Result;
+import com.hetongxue.system.domain.User;
+import com.hetongxue.system.service.PermissionService;
 import com.hetongxue.utils.JwtUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
@@ -26,13 +28,25 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
 
     @Resource
     private JwtUtils jwtUtils;
+    @Resource
+    private PermissionService permissionService;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
-        response.setContentType("application/json;charset=utf-8");// 设置字符编码
-        response.setStatus(HttpStatus.OK.value());// 设置状态
-        response.setHeader(Const.AUTHORIZATION_KEY, jwtUtils.generateToken(authentication.getName()));// 生成token
-        response.getWriter().println(new ObjectMapper().writeValueAsString(Result.Success().setMessage("登陆成功")));
+        // 设置字符编码
+        response.setContentType("application/json;charset=utf-8");
+        // 设置状态
+        response.setStatus(HttpStatus.OK.value());
+        // 生成token
+        response.setHeader(Const.AUTHORIZATION_KEY, jwtUtils.generateToken(authentication.getName()));
+        // 自定义返回内容
+        User user = (User) authentication.getPrincipal();
+        user.setPassword(null);
+        response.getWriter().println(new ObjectMapper()
+                .writeValueAsString(Result.Success()
+                        .setMessage("登陆成功")
+                        .setData(user)
+                ));
     }
 
 }
