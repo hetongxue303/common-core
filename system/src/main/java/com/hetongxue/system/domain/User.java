@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.hetongxue.system.domain.common.PublicProperty;
-import com.hetongxue.system.domain.vo.permission.PermissionVo;
+import com.hetongxue.system.domain.vo.permission.RouterVo;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -78,10 +78,15 @@ public class User extends PublicProperty implements Serializable, UserDetails {
     private boolean status;
 
     /**
-     * 用户权限列表
+     * 用户路由列表
      */
     @TableField(exist = false)
-    private List<PermissionVo> permissions = new ArrayList<>();
+    private List<RouterVo> routers = new ArrayList<>();
+    /**
+     * 用户菜单列表
+     */
+    @TableField(exist = false)
+    private List<RouterVo> menus = new ArrayList<>();
     /**
      * 用户权限编码
      */

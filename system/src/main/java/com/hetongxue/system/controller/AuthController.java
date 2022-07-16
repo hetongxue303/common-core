@@ -1,6 +1,5 @@
 package com.hetongxue.system.controller;
 
-import com.hetongxue.aop.log.LogAnnotation;
 import com.hetongxue.lang.Const;
 import com.hetongxue.response.Result;
 import com.hetongxue.system.domain.User;
@@ -35,7 +34,6 @@ public class AuthController {
      * 获取验证码
      */
     @GetMapping("/getVerify")
-    @LogAnnotation(module = "安全模块", operate = "获取验证码")
     public Result getVerify() {
         // 在java11中使用Nashorn engine  会出现 Warning: Nashorn engine is planned to be removed from a future JDK release
         System.setProperty("nashorn.args", "--no-deprecation-warning");// 解决上诉问题设置
@@ -48,7 +46,6 @@ public class AuthController {
      * 刷新token
      */
     @PostMapping("/refreshToken")
-    @LogAnnotation(module = "安全模块", operate = "刷新token")
     public Result refreshToken(HttpServletRequest request) {
         // 获取token信息
         String token = request.getHeader(Const.AUTHORIZATION_KEY);

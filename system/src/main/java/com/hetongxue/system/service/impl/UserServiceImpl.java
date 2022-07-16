@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.hetongxue.security.SecurityUtils;
 import com.hetongxue.system.domain.Permission;
 import com.hetongxue.system.domain.User;
 import com.hetongxue.system.domain.vo.UserQueryVo;
@@ -42,9 +43,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
         // 获取用户对应的权限列表
         List<Permission> permissions = permissionService.selectPermissionByUserId(user.getId());
-//        return user.setPermissions(SecurityUtils.generatePermission(permissions, 0L))
-//                .setAuthorities(SecurityUtils.generateAuthority(permissions));
-        return user;
+        return user.setRouters(SecurityUtils.generateRouter(permissions, 0L));
     }
 
     @Override
