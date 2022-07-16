@@ -41,10 +41,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Resource
     private LoginFailureHandler loginFailureHandler;
 
-//    public JwtAuthenticationFilter(AuthenticationManager authenticationManager) {
-//        super(authenticationManager);
-//    }
-
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         try {

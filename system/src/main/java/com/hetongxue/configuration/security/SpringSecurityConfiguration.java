@@ -45,11 +45,6 @@ public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter {
         return new BCryptPasswordEncoder();
     }
 
-//    @Bean
-//    public JwtAuthenticationFilter jwtAuthenticationFilter() throws Exception {
-//        return new JwtAuthenticationFilter(authenticationManager());
-//    }
-
     /**
      * 登陆认证处理
      */
@@ -71,9 +66,9 @@ public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .and().cors()
                 // 关闭csrf攻击
                 .and().csrf().disable()
-                // 添加jwt过滤器
+                // 添加在UsernamePasswordAuthenticationFilter之前的jwtAuthenticationFilter(登陆之前)
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                // 添加在UsernamePasswordAuthenticationFilter之前的过滤器captchaFilter
+                // 添加在UsernamePasswordAuthenticationFilter之前的captchaFilter(登陆之前)
                 .addFilterBefore(captchaFilter, UsernamePasswordAuthenticationFilter.class);
     }
 
