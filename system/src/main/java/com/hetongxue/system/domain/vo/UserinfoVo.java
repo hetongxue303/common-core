@@ -1,11 +1,17 @@
 package com.hetongxue.system.domain.vo;
 
+import com.hetongxue.system.domain.vo.permission.MenuVo;
+import com.hetongxue.system.domain.vo.permission.RouterVo;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
+import org.springframework.security.core.GrantedAuthority;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * @Description: 用户信息VO
@@ -29,6 +35,8 @@ public class UserinfoVo implements Serializable {
     private String Introduction;
     private String avatarPath;
     private boolean status;
-    private Object[] roles;
+    private List<RouterVo> routers = new ArrayList<>();
+    private List<MenuVo> menus = new ArrayList<>();
+    private Collection<? extends GrantedAuthority> authorities;
 
 }

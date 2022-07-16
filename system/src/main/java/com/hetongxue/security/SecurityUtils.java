@@ -2,8 +2,7 @@ package com.hetongxue.security;
 
 import com.hetongxue.system.domain.Permission;
 import com.hetongxue.system.domain.User;
-import com.hetongxue.system.domain.vo.permission.MetaVo;
-import com.hetongxue.system.domain.vo.permission.PermissionVo;
+import com.hetongxue.system.domain.vo.permission.MenuVo;
 import com.hetongxue.system.domain.vo.permission.RouterVo;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -23,56 +22,29 @@ import java.util.Optional;
 public class SecurityUtils {
 
     /**
-     * 生成树
+     * 生成菜单列表
      */
-    public static List<PermissionVo> generatePermission(List<Permission> permissions, Long parentId) {
-        ArrayList<PermissionVo> list = new ArrayList<>();
+    public static List<MenuVo> generateMenu(List<Permission> permissions, Long parentId) {
+        List<MenuVo> menuList = new ArrayList<>();
         Optional.ofNullable(permissions)
                 .orElse(new ArrayList<Permission>())
                 .stream()
                 .filter(item -> item != null && Objects.equals(item.getParentId(), parentId) && item.getMenuType() != 3)
                 .forEach(item -> {
-                    list.add(new PermissionVo().setName(item.getName())
+                    menuList.add(new MenuVo()
+                            .setName(item.getTitle())
                             .setPath(item.getPath())
-                            .setComponent(item.getComponentPath())
-                            .setMeta(new MetaVo()
-                                    .setTitle(item.getTitle())
-                                    .setIcon(item.getMenuIcon())
-                                    .setKeepAlive(true)
-                                    .setRequireAuth(true))
-                            .setChildren(generatePermission(permissions, item.getId())));
+                            .setIcon(item.getMenuIcon())
+                            .setChildren(generateMenu(permissions, item.getId())));
                 });
-        return list;
+        return menuList;
     }
 
     /**
-     * 生成权限编码
-     */
-    public static List<GrantedAuthority> generateAuthority(List<Permission> permissions) {
-        return AuthorityUtils.createAuthorityList(
-                permissions.stream()
-                        // 过滤不为空的
-                        .filter(Objects::nonNull)
-                        // 拿到权限编码
-                        .map(Permission::getMenuPermission)
-                        // 再次过滤不为空的
-                        .filter(Objects::nonNull)
-                        // 转换为数组
-                        .toArray(String[]::new));
-    }
-
-    /**
-     * 获取用户信息
-     */
-    public static User getUserInfo() {
-        return ((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
-    }
-
-    /**
-     * 生成路由
+     * 生成路由列表
      */
     public static List<RouterVo> generateRouter(List<Permission> permissions, Long parentId) {
-        ArrayList<RouterVo> routerList = new ArrayList<>();
+        List<RouterVo> routerList = new ArrayList<>();
         // 判断是否为空
         Optional.ofNullable(permissions)
                 // 不为空时新建一个数组
@@ -105,6 +77,29 @@ public class SecurityUtils {
                             .setChildren(generateRouter(permissions, item.getId())));
                 });
         return routerList;
+    }
+
+    /**
+     * 生成权限编码
+     */
+    public static List<GrantedAuthority> generateAuthority(List<Permission> permissions) {
+        return AuthorityUtils.createAuthorityList(
+                permissions.stream()
+                        // 过滤不为空的
+                        .filter(Objects::nonNull)
+                        // 拿到权限编码
+                        .map(Permission::getMenuPermission)
+                        // 再次过滤不为空的
+                        .filter(Objects::nonNull)
+                        // 转换为数组
+                        .toArray(String[]::new));
+    }
+
+    /**
+     * 获取用户信息
+     */
+    public static User getUserInfo() {
+        return ((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
     }
 
 }

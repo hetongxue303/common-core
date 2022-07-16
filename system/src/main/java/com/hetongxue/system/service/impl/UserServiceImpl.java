@@ -43,7 +43,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
         // 获取用户对应的权限列表
         List<Permission> permissions = permissionService.selectPermissionByUserId(user.getId());
-        return user.setRouters(SecurityUtils.generateRouter(permissions, 0L));
+        return user.setRouters(SecurityUtils.generateRouter(permissions, 0L))
+                .setMenus(SecurityUtils.generateMenu(permissions, 0L))
+                .setAuthorities(SecurityUtils.generateAuthority(permissions));
     }
 
     @Override

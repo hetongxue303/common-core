@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.Objects;
 
 /**
  * @Description: 用户模块
@@ -37,10 +36,8 @@ public class UserController {
             return Result.Error().setMessage("获取用户信息失败");
         }
         List<Permission> permissions = permissionService.selectPermissionByUserId(user.getId());
-        Object[] objects = permissions.stream().filter(Objects::nonNull).map(Permission::getMenuPermission).toArray();
         UserinfoVo userinfoVo = new UserinfoVo();
         BeanUtils.copyProperties(user, userinfoVo);
-        userinfoVo.setRoles(objects);
         return Result.Success(userinfoVo).setMessage("获取用户信息成功");
     }
 

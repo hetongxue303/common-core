@@ -29,11 +29,11 @@ public class RouterVo implements Serializable {
      */
     private String component;
     /**
-     * meta信息
+     * 路由meta信息
      */
     private MetaVo meta;
     /**
-     * 子菜单
+     * 子路由
      */
     private List<RouterVo> children;
 

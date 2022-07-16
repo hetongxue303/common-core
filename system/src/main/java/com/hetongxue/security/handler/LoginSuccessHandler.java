@@ -4,8 +4,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hetongxue.lang.Const;
 import com.hetongxue.response.Result;
 import com.hetongxue.system.domain.User;
+import com.hetongxue.system.domain.vo.UserinfoVo;
 import com.hetongxue.utils.JwtUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.BeanUtils;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
@@ -44,11 +46,10 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
         redisTemplate.opsForValue().set(Const.AUTHORIZATION_KEY, token);
         // 将token设置在请求头上
         response.setHeader(Const.AUTHORIZATION_KEY, token);
-        // 返回内容
-        response.getWriter().println(new ObjectMapper().writeValueAsString(
-                Result.Success()
-                        .setMessage("登陆成功")
-                        .setData(user.setPassword(null))));
+        // 自定义返回内容
+        UserinfoVo userinfoVo = new UserinfoVo();
+        BeanUtils.copyProperties(user, userinfoVo);
+        response.getWriter().println(new ObjectMapper().writeValueAsString(Result.Success(userinfoVo).setMessage("登陆成功")));
     }
 
 }
