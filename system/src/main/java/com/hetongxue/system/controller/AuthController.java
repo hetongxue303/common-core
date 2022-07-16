@@ -3,7 +3,6 @@ package com.hetongxue.system.controller;
 import com.hetongxue.aop.log.LogAnnotation;
 import com.hetongxue.lang.Const;
 import com.hetongxue.response.Result;
-import com.hetongxue.security.exception.JwtAuthenticationException;
 import com.hetongxue.system.domain.User;
 import com.hetongxue.utils.JwtUtils;
 import com.wf.captcha.ArithmeticCaptcha;
@@ -55,7 +54,7 @@ public class AuthController {
         String token = request.getHeader(Const.AUTHORIZATION_KEY);
         // 判断是否存在
         if (ObjectUtils.isEmpty(token) || ObjectUtils.isEmpty(jwtUtils.getClaims(token))) {
-            throw new JwtAuthenticationException("token刷新失败");
+            return Result.Error().setMessage("token刷新失败");
         }
         // 从SpringSecurity上下文中获取信息
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
