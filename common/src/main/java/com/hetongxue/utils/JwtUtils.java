@@ -1,9 +1,9 @@
 package com.hetongxue.utils;
 
-import com.hetongxue.lang.Const;
 import io.jsonwebtoken.*;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
 import java.util.Date;
 
 /**
@@ -16,16 +16,35 @@ import java.util.Date;
 public class JwtUtils {
 
     /**
+     * 过期时间
+     */
+    private static final Long EXPIRATION_TIME = 10080000000L;
+    /**
+     * 密钥
+     */
+    private static final String SECRET = "568548eddf5fe99ews458dftgv4v87gh";
+
+    /**
      * 生成JWT
      */
-    public String generateToken(String username) {
-        Date nowDate = new Date();
+    public String generateToken(Long id, String username) {
         return Jwts.builder()
+                // 设置头部信息
                 .setHeaderParam("typ", "JWT")
-                .setSubject(username)
-                .setIssuedAt(nowDate)
-                .setExpiration(new Date(nowDate.getTime() * 1000 * 60 * 60 * 24 * Const.EXPIRE))// 7天过期
-                .signWith(SignatureAlgorithm.HS512, Const.SECRET)
+                .setHeaderParam("alg", "HS2256")
+                // 设置主题
+                .setSubject("userinfo")
+                // 设置发行时间
+                .setIssuedAt(new Date())
+                // 设置过期时间
+//                .setExpiration(new Date(date.getTime() * EXPIRATION_TIME))
+                .setExpiration(new Date(Instant.now().toEpochMilli() + EXPIRATION_TIME))
+                // 设置用户ID
+                .claim("id", id)
+                // 设置用户名
+                .claim("username", username)
+                // 设置签发方式
+                .signWith(SignatureAlgorithm.HS512, SECRET)
                 .compact();
     }
 
@@ -34,10 +53,7 @@ public class JwtUtils {
      */
     public Claims getClaims(String token) {
         try {
-            return Jwts.parser()
-                    .setSigningKey(Const.SECRET)
-                    .parseClaimsJws(token)
-                    .getBody();
+            return Jwts.parser().setSigningKey(SECRET).parseClaimsJws(token).getBody();
         } catch (ExpiredJwtException | SignatureException | UnsupportedJwtException | MalformedJwtException |
                  IllegalArgumentException e) {
             return null;

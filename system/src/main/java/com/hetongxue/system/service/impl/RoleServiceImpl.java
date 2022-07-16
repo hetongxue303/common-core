@@ -27,7 +27,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements Ro
 
     @Override
     @Transactional(propagation = Propagation.SUPPORTS)
-    public List<Role> loadRoleByUserId(Long userId) {
+    public List<Role> selectRoleByUserId(Long userId) {
         return roleMapper.selectList(new QueryWrapper<Role>()
                 .inSql("id", "select distinct role_id from sys_user_role where user_id = " + userId));
     }

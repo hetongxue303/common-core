@@ -1,6 +1,5 @@
 package com.hetongxue.system.domain.vo.permission;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -36,7 +35,6 @@ public class PermissionVo implements Serializable {
     /**
      * 子菜单
      */
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     private List<PermissionVo> children;
 
 }

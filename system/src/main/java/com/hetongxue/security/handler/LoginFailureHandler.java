@@ -3,7 +3,8 @@ package com.hetongxue.security.handler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hetongxue.response.ResponseCode;
 import com.hetongxue.response.Result;
-import com.hetongxue.security.exception.CaptchaException;
+import com.hetongxue.security.exception.CaptchaAuthenticationException;
+import com.hetongxue.security.exception.JwtAuthenticationException;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -49,12 +50,16 @@ public class LoginFailureHandler implements AuthenticationFailureHandler {
         if (exception instanceof AuthenticationServiceException) {
             result.setMessage(exception.getMessage());
         }
-        // 用户没有找到
+        // token异常
+        if (exception instanceof JwtAuthenticationException) {
+            result.setMessage(exception.getMessage());
+        }
+        // 用户不存在
         if (exception instanceof UsernameNotFoundException) {
             result.setMessage(exception.getMessage());
         }
         // 验证码异常
-        if (exception instanceof CaptchaException) {
+        if (exception instanceof CaptchaAuthenticationException) {
             switch (Integer.parseInt(exception.getMessage())) {
                 case 5000:
                     result.setCode(ResponseCode.VALIDATION_ERROR.getCode()).setMessage(ResponseCode.VALIDATION_ERROR.getMessage());
@@ -64,8 +69,6 @@ public class LoginFailureHandler implements AuthenticationFailureHandler {
                     break;
                 case 5002:
                     result.setCode(ResponseCode.VALIDATION_NULL.getCode()).setMessage(ResponseCode.VALIDATION_NULL.getMessage());
-                    break;
-                default:
                     break;
             }
         }

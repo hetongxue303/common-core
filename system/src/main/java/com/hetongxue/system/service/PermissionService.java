@@ -16,6 +16,6 @@ public interface PermissionService extends IService<Permission> {
     /**
      * 按用户ID加载用户权限列表
      */
-    List<Permission> loadPermissionByUserId(Long userId);
+    List<Permission> selectPermissionByUserId(Long userId);
 
 }

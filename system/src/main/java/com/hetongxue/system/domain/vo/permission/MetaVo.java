@@ -15,9 +15,21 @@ import java.io.Serializable;
 @Accessors(chain = true)
 public class MetaVo implements Serializable {
 
-    private String title;// 路由标题
-    private String icon;// 路由图标
-    private Boolean keepAlive;// 是否缓存
-    private Boolean requireAuth;// 是否需要权限
+    /**
+     * 路由标题
+     */
+    private String title;
+    /**
+     * 路由图标
+     */
+    private String icon;
+    /**
+     * 是否缓存
+     */
+    private Boolean keepAlive;
+    /**
+     * 是否需要权限
+     */
+    private Boolean requireAuth;
 
 }

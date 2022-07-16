@@ -16,6 +16,6 @@ public interface RoleService extends IService<Role> {
     /**
      * 按用户ID加载用户角色信息
      */
-    List<Role> loadRoleByUserId(Long userId);
+    List<Role> selectRoleByUserId(Long userId);
 
 }

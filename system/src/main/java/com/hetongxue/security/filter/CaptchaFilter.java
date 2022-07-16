@@ -2,11 +2,12 @@ package com.hetongxue.security.filter;
 
 import com.hetongxue.lang.Const;
 import com.hetongxue.response.ResponseCode;
-import com.hetongxue.security.exception.CaptchaException;
+import com.hetongxue.security.exception.CaptchaAuthenticationException;
 import com.hetongxue.security.handler.LoginFailureHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
@@ -36,7 +37,7 @@ public class CaptchaFilter extends OncePerRequestFilter {
         try {
             // 当不是登录页时的处理
             if (!request.getRequestURI().equals(Const.LOGIN_PATH)) {
-                filterChain.doFilter(request, response);
+                doFilter(request, response, filterChain);
                 return;
             }
             // 当是登录页时的处理
@@ -44,21 +45,21 @@ public class CaptchaFilter extends OncePerRequestFilter {
                 String code = request.getParameter(Const.VERIFICATION_CODE);
                 String redisCode = (String) redisTemplate.opsForValue().get(Const.CAPTCHA_KEY);
                 // 验证码为空
-                if (code == null || "".equals(code)) {
-                    throw new CaptchaException(ResponseCode.VALIDATION_NULL.getCode().toString());
+                if (ObjectUtils.isEmpty(code)) {
+                    throw new CaptchaAuthenticationException(ResponseCode.VALIDATION_NULL.getCode().toString());
                 }
                 // 验证码过期
-                if (redisCode == null || "".equals(redisCode)) {
-                    throw new CaptchaException(ResponseCode.VALIDATION_EXPIRED.getCode().toString());
+                if (ObjectUtils.isEmpty(redisCode)) {
+                    throw new CaptchaAuthenticationException(ResponseCode.VALIDATION_EXPIRED.getCode().toString());
                 }
                 // 验证码错误
                 if (!code.equals(redisCode)) {
-                    throw new CaptchaException(ResponseCode.VALIDATION_ERROR.getCode().toString());
+                    throw new CaptchaAuthenticationException(ResponseCode.VALIDATION_ERROR.getCode().toString());
                 }
                 redisTemplate.delete(Const.CAPTCHA_KEY);
-                filterChain.doFilter(request, response);
+                doFilter(request, response, filterChain);
             }
-        } catch (CaptchaException e) {
+        } catch (CaptchaAuthenticationException e) {
             redisTemplate.delete(Const.CAPTCHA_KEY);
             loginFailureHandler.onAuthenticationFailure(request, response, e);
         }

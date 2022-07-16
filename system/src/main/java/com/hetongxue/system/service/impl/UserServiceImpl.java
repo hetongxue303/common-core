@@ -1,10 +1,12 @@
 package com.hetongxue.system.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.hetongxue.security.SecurityUtils;
 import com.hetongxue.system.domain.Permission;
 import com.hetongxue.system.domain.User;
+import com.hetongxue.system.domain.vo.UserQueryVo;
 import com.hetongxue.system.mapper.UserMapper;
 import com.hetongxue.system.service.PermissionService;
 import com.hetongxue.system.service.UserService;
@@ -13,6 +15,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ObjectUtils;
 
 import java.util.List;
 
@@ -37,10 +40,20 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (user == null) {
             throw new UsernameNotFoundException("用户名或密码错误");
         }
-        List<Permission> permissions = permissionService.loadPermissionByUserId(user.getId());
-        return user.setPermissions(SecurityUtils.generatePermission(permissions, 0L))
-                .setAuthorities(SecurityUtils.generateAuthority(permissions));
+        // 获取用户对应的权限列表
+        List<Permission> permissions = permissionService.selectPermissionByUserId(user.getId());
+//        return user.setPermissions(SecurityUtils.generatePermission(permissions, 0L))
+//                .setAuthorities(SecurityUtils.generateAuthority(permissions));
+        return user;
     }
 
-
+    @Override
+    public IPage<User> selectUserList(UserQueryVo userQuery) {
+        return userMapper.selectPage(new Page<>(userQuery.getPage(), userQuery.getSize()), new QueryWrapper<User>()
+                .like(!ObjectUtils.isEmpty(userQuery.getUsername()), "username", userQuery.getUsername())
+                .like(!ObjectUtils.isEmpty(userQuery.getNickName()), "nick_name", userQuery.getNickName())
+                .like(!ObjectUtils.isEmpty(userQuery.getRealName()), "real_name", userQuery.getRealName())
+                .like(!ObjectUtils.isEmpty(userQuery.getGender()), "gender", userQuery.getGender())
+        );
+    }
 }

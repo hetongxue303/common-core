@@ -27,11 +27,10 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper, Permiss
 
     @Override
     @Transactional(propagation = Propagation.SUPPORTS)
-    public List<Permission> loadPermissionByUserId(Long userId) {
-        return permissionMapper
-                .selectList(new QueryWrapper<Permission>()
-                        .inSql("id", "select permission_id from sys_role_permission where role_id in " +
-                                "(select distinct role_id from sys_user_role where user_id = " + userId + ")")
-                        .orderByAsc("menu_sort"));
+    public List<Permission> selectPermissionByUserId(Long userId) {
+        return permissionMapper.selectList(new QueryWrapper<Permission>()
+                .inSql("id", "select permission_id from sys_role_permission where role_id in " +
+                        "(select distinct role_id from sys_user_role where user_id = " + userId + ")")
+                .orderByAsc("menu_sort"));
     }
 }

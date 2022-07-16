@@ -1,4 +1,4 @@
-package com.hetongxue.system.domain;
+package com.hetongxue.system.domain.common;
 
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;

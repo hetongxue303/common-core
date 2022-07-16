@@ -78,9 +78,9 @@ public enum ResponseCode {
     NETWORK_AUTHENTICATION_REQUIRED(511, "Network Authentication Required"),
 
     // customize
-    VALIDATION_ERROR(5000, "ValidationCodeError"),// 验证码错误
-    VALIDATION_EXPIRED(5001, "ValidationCodeExpired"),// 验证码过期
-    VALIDATION_NULL(5002, "ValidationCodeNull"),// 验证码为空
+    VALIDATION_ERROR(5000, "验证码错误"),// 验证码错误
+    VALIDATION_EXPIRED(5001, "验证码过期"),// 验证码过期
+    VALIDATION_NULL(5002, "验证码为空"),// 验证码为空
     NULL_POINTER(5001, "NullPointer");// 空指针
 
     private final Integer code;
