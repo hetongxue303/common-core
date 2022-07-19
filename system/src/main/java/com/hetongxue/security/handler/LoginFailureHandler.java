@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hetongxue.response.ResponseCode;
 import com.hetongxue.response.Result;
 import com.hetongxue.security.exception.CaptchaAuthenticationException;
-import com.hetongxue.security.exception.JwtAuthenticationException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -22,6 +22,7 @@ import java.io.IOException;
  * @DateTime: 2022-07-07 22:05
  */
 @Component
+@Slf4j
 public class LoginFailureHandler implements AuthenticationFailureHandler {
 
     @Override
@@ -48,10 +49,6 @@ public class LoginFailureHandler implements AuthenticationFailureHandler {
         }
         // 认证服务异常
         if (exception instanceof AuthenticationServiceException) {
-            result.setMessage(exception.getMessage());
-        }
-        // token异常
-        if (exception instanceof JwtAuthenticationException) {
             result.setMessage(exception.getMessage());
         }
         // 用户不存在

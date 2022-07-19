@@ -1,8 +1,8 @@
 package com.hetongxue.security.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hetongxue.lang.Const;
 import com.hetongxue.response.Result;
+import com.hetongxue.security.lang.Const;
 import com.hetongxue.system.domain.User;
 import com.hetongxue.system.domain.vo.UserinfoVo;
 import com.hetongxue.utils.JwtUtils;
@@ -18,6 +18,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @Description: 认证成功处理器
@@ -42,8 +43,8 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
         User user = (User) authentication.getPrincipal();
         // 生成token
         String token = jwtUtils.generateToken(user.getId(), user.getUsername());
-        // 将token存于redis中
-        redisTemplate.opsForValue().set(Const.AUTHORIZATION_KEY, token);
+        // 将token存于redis中(默认3天)
+        redisTemplate.opsForValue().set(Const.AUTHORIZATION_KEY, token, 7, TimeUnit.DAYS);
         // 将token设置在请求头上
         response.setHeader(Const.AUTHORIZATION_KEY, token);
         // 自定义返回内容

@@ -1,7 +1,7 @@
 package com.hetongxue.system.controller;
 
 import com.hetongxue.response.Result;
-import com.hetongxue.security.SecurityUtils;
+import com.hetongxue.security.utils.SecurityUtils;
 import com.hetongxue.system.domain.Permission;
 import com.hetongxue.system.domain.User;
 import com.hetongxue.system.domain.vo.UserQueryVo;

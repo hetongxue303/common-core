@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.hetongxue.security.SecurityUtils;
+import com.hetongxue.security.utils.SecurityUtils;
 import com.hetongxue.system.domain.Permission;
 import com.hetongxue.system.domain.User;
 import com.hetongxue.system.domain.vo.UserQueryVo;
@@ -38,14 +38,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userMapper.selectOne(new QueryWrapper<User>().eq("username", username));
-        if (user == null) {
+        if (ObjectUtils.isEmpty(user)) {
             throw new UsernameNotFoundException("用户名或密码错误");
         }
         // 获取用户对应的权限列表
         List<Permission> permissions = permissionService.selectPermissionByUserId(user.getId());
         return user.setRouters(SecurityUtils.generateRouter(permissions, 0L))
-                .setMenus(SecurityUtils.generateMenu(permissions, 0L))
-                .setAuthorities(SecurityUtils.generateAuthority(permissions));
+                .setMenus(SecurityUtils.generateMenu(permissions, 0L));
     }
 
     @Override

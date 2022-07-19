@@ -1,4 +1,4 @@
-package com.hetongxue.security;
+package com.hetongxue.security.utils;
 
 import com.hetongxue.system.domain.Permission;
 import com.hetongxue.system.domain.User;

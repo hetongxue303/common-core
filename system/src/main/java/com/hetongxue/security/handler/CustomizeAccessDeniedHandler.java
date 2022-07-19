@@ -14,7 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * @Description: 用户无权限访问处理类
+ * @Description: 无权访问处理类(已登录)
  * @ClassNmae: CustomizeAccessDeniedHandler
  * @Author: 何同学
  * @DateTime: 2022-07-07 22:16

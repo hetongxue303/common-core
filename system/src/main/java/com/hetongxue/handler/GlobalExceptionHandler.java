@@ -2,11 +2,11 @@ package com.hetongxue.handler;
 
 import com.hetongxue.response.ResponseCode;
 import com.hetongxue.response.Result;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 
 /**
@@ -17,10 +17,10 @@ import javax.servlet.http.HttpServletResponse;
  */
 @Slf4j
 @RestControllerAdvice
-@RequiredArgsConstructor
 public class GlobalExceptionHandler {
 
-    private final HttpServletResponse response;
+    @Resource
+    private HttpServletResponse response;
 
     /**
      * 未知异常

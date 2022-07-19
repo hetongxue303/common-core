@@ -13,7 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * @Description: 匿名用户访问处理类
+ * @Description: 匿名访问处理类(未登录)
  * @ClassNmae: CustomizeAuthenticationEntryPoint
  * @Author: 何同学
  * @DateTime: 2022-07-07 22:15

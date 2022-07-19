@@ -1,12 +1,13 @@
-package com.hetongxue.lang;
+package com.hetongxue.security.lang;
 
 /**
- * @Description: 全局常量
+ * @Description: SpringSecuriry常量参数
  * @ClassNmae: Const
  * @Author: 何同学
- * @DateTime: 2022-07-04 16:03
+ * @DateTime: 2022-07-19 20:21
  */
 public class Const {
+
     /**
      * SpringSecurity配置参数
      */
@@ -16,15 +17,7 @@ public class Const {
     public static final String REMEMBER_ME = "rememberMe";
     public static final String LOGIN_PATH = "/login";
     public static final String LOGOUT_PATH = "/logout";
-
-    /**
-     * 验证码关键字
-     **/
     public static final String CAPTCHA_KEY = "captcha";
-
-    /**
-     * 权限关键字
-     **/
-    public static final String AUTHORIZATION_KEY = "Authorization";
+    public static final String AUTHORIZATION_KEY = "authorization";
 
 }

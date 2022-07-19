@@ -3,7 +3,6 @@ package com.hetongxue.utils;
 import io.jsonwebtoken.*;
 import org.springframework.stereotype.Component;
 
-import java.time.Instant;
 import java.util.Date;
 
 /**
@@ -16,9 +15,9 @@ import java.util.Date;
 public class JwtUtils {
 
     /**
-     * 过期时间
+     * 过期时间(单位：ms)
      */
-    private static final Long EXPIRATION_TIME = 10080000000L;
+    private static final Long EXPIRATION_TIME = 259200000L;// 默认3天
     /**
      * 密钥
      */
@@ -34,15 +33,14 @@ public class JwtUtils {
                 .setHeaderParam("alg", "HS2256")
                 // 设置主题
                 .setSubject("userinfo")
-                // 设置发行时间
-                .setIssuedAt(new Date())
-                // 设置过期时间
-//                .setExpiration(new Date(date.getTime() * EXPIRATION_TIME))
-                .setExpiration(new Date(Instant.now().toEpochMilli() + EXPIRATION_TIME))
                 // 设置用户ID
                 .claim("id", id)
                 // 设置用户名
                 .claim("username", username)
+                // 设置发行时间
+                .setIssuedAt(new Date())
+                // 设置过期时间(claim设置在过期时间之前 否则可能会出现过期时间不生效问题)
+                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
                 // 设置签发方式
                 .signWith(SignatureAlgorithm.HS512, SECRET)
                 .compact();
@@ -54,8 +52,7 @@ public class JwtUtils {
     public Claims getClaims(String token) {
         try {
             return Jwts.parser().setSigningKey(SECRET).parseClaimsJws(token).getBody();
-        } catch (ExpiredJwtException | SignatureException | UnsupportedJwtException | MalformedJwtException |
-                 IllegalArgumentException e) {
+        } catch (Exception e) {
             return null;
         }
     }
@@ -66,6 +63,5 @@ public class JwtUtils {
     public boolean isExpired(Claims claims) {
         return claims.getExpiration().before(new Date());
     }
-
 
 }

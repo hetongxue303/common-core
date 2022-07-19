@@ -1,7 +1,7 @@
 package com.hetongxue.system.controller;
 
-import com.hetongxue.lang.Const;
 import com.hetongxue.response.Result;
+import com.hetongxue.security.lang.Const;
 import com.hetongxue.system.domain.User;
 import com.hetongxue.utils.JwtUtils;
 import com.wf.captcha.ArithmeticCaptcha;
