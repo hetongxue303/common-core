@@ -2,11 +2,20 @@ package com.hetongxue.security.filter;
 
 import com.hetongxue.security.exception.JwtAuthenticationException;
 import com.hetongxue.security.lang.Const;
+import com.hetongxue.security.utils.SecurityUtils;
+import com.hetongxue.system.domain.Permission;
+import com.hetongxue.system.domain.Role;
+import com.hetongxue.system.domain.User;
+import com.hetongxue.system.service.PermissionService;
+import com.hetongxue.system.service.RoleService;
+import com.hetongxue.system.service.UserService;
 import com.hetongxue.utils.JwtUtils;
 import io.jsonwebtoken.Claims;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.util.ObjectUtils;
@@ -17,6 +26,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -29,6 +39,12 @@ public class JwtAuthenticationFilter extends BasicAuthenticationFilter {
 
     @Resource
     private JwtUtils jwtUtils;
+    @Resource
+    private UserService userService;
+    @Resource
+    private RoleService roleService;
+    @Resource
+    private PermissionService permissionService;
 
     @Resource
     private RedisTemplate<String, Object> redisTemplate;
@@ -62,8 +78,19 @@ public class JwtAuthenticationFilter extends BasicAuthenticationFilter {
         }
         // 通过token拿到当前用户名
         String username = String.valueOf(claims.get("username"));
+
+        // 获取用户信息
+        User user = (User) userService.loadUserByUsername(username);
+
+        // 生成权限列表
+        List<Role> roles = roleService.selectRoleByUserId(user.getId());
+        List<Permission> permissions = permissionService.selectPermissionByUserId(user.getId());
+        String authority = SecurityUtils.generateAuthority(roles, permissions);
+        List<GrantedAuthority> grantedAuthorities = AuthorityUtils.commaSeparatedStringToAuthorityList(authority);
+
         // 获取用户权限信息并设置到上下文(用户名，密码，权限信息)
-        SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(username, null, null));
+        SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(username, null, grantedAuthorities));
+
         // 过滤器继续往后走
         chain.doFilter(request, response);
     }

@@ -1,17 +1,18 @@
 package com.hetongxue.security.utils;
 
 import com.hetongxue.system.domain.Permission;
+import com.hetongxue.system.domain.Role;
 import com.hetongxue.system.domain.User;
 import com.hetongxue.system.domain.vo.permission.MenuVo;
 import com.hetongxue.system.domain.vo.permission.RouterVo;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.util.ObjectUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * @Description: Security工具类
@@ -80,19 +81,26 @@ public class SecurityUtils {
     }
 
     /**
-     * 生成权限编码
+     * 生成权限信息
      */
-    public static List<GrantedAuthority> generateAuthority(List<Permission> permissions) {
-        return AuthorityUtils.createAuthorityList(
-                permissions.stream()
-                        // 过滤不为空的
-                        .filter(Objects::nonNull)
-                        // 拿到权限编码
-                        .map(Permission::getMenuPermission)
-                        // 再次过滤不为空的
-                        .filter(Objects::nonNull)
-                        // 转换为数组
-                        .toArray(String[]::new));
+    public static String generateAuthority(List<Role> roles, List<Permission> permissions) {
+        // 获取角色列表
+        String role = Optional.ofNullable(roles)
+                .orElse(new ArrayList<Role>())
+                .stream()
+                .filter(Objects::nonNull)
+                .map(item -> "ROLE_" + item.getName())
+                .collect(Collectors.joining(","));
+        // 获取权限代码列表
+        String permission = Optional.ofNullable(permissions)
+                .orElse(new ArrayList<Permission>())
+                .stream()
+                .filter(Objects::nonNull)
+                .map(Permission::getMenuPermission)
+                .filter(Objects::nonNull)
+                .collect(Collectors.joining(","));
+        // 判断角色列表是否为空 为空则只返回权限代码 不为空则返回角色列表+权限代码列表
+        return ObjectUtils.isEmpty(role) ? permission : role.concat(",").concat(permission);
     }
 
     /**
