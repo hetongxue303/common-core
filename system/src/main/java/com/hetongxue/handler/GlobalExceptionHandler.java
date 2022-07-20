@@ -2,12 +2,18 @@ package com.hetongxue.handler;
 
 import com.hetongxue.response.ResponseCode;
 import com.hetongxue.response.Result;
+import com.hetongxue.security.exception.JwtAuthenticationException;
+import com.hetongxue.security.handler.CustomizeAccessDeniedHandler;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import javax.annotation.Resource;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 /**
  * @Description: 全局异常处理
@@ -19,6 +25,8 @@ import javax.servlet.http.HttpServletResponse;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    @Resource
+    private HttpServletRequest request;
     @Resource
     private HttpServletResponse response;
 
@@ -58,6 +66,24 @@ public class GlobalExceptionHandler {
         return Result.Error()
                 .setMessage(ResponseCode.NULL_POINTER.getMessage())
                 .setCode(ResponseCode.NULL_POINTER.getCode());
+    }
+
+    /**
+     * 权限不足异常
+     */
+    @ExceptionHandler(AccessDeniedException.class)
+    public void accessDeniedException(AccessDeniedException e) throws ServletException, IOException {
+        CustomizeAccessDeniedHandler accessDeniedHandler = new CustomizeAccessDeniedHandler();
+        accessDeniedHandler.handle(request, response, e);
+    }
+
+    /**
+     * JWT异常
+     */
+    @ExceptionHandler(JwtAuthenticationException.class)
+    public Result jwtAuthenticationFilter(JwtAuthenticationException e) {
+        log.error(e.getMessage());
+        return Result.Error().setMessage(e.getMessage());
     }
 
 }
