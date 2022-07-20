@@ -28,6 +28,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @Description: jwt过滤器(自动登录)
@@ -68,7 +69,8 @@ public class JwtAuthenticationFilter extends BasicAuthenticationFilter {
             throw new JwtAuthenticationException("token 异常");
         }
         // 判断token是否过期
-        String redisToken = String.valueOf(redisTemplate.opsForValue().get(Const.AUTHORIZATION_KEY));
+        String redisToken =
+                String.valueOf(redisTemplate.opsForValue().get(Const.AUTHORIZATION_KEY));
         if (jwtUtils.isExpired(claims) || ObjectUtils.isEmpty(redisToken)) {
             throw new JwtAuthenticationException("token 过期");
         }
@@ -79,15 +81,22 @@ public class JwtAuthenticationFilter extends BasicAuthenticationFilter {
         // 通过token拿到当前用户名
         String username = String.valueOf(claims.get("username"));
 
-        // 获取用户信息
+        // 获取用户信息 以及权限角色
         User user = (User) userService.loadUserByUsername(username);
-
-        // 生成权限列表
         List<Role> roles = roleService.selectRoleByUserId(user.getId());
         List<Permission> permissions = permissionService.selectPermissionByUserId(user.getId());
-        String authority = SecurityUtils.generateAuthority(roles, permissions);
-        List<GrantedAuthority> grantedAuthorities = AuthorityUtils.commaSeparatedStringToAuthorityList(authority);
 
+        // 生成权限列表
+        String authoritySaveName = "code";
+        String authority = "";
+        if (Boolean.TRUE.equals(redisTemplate.hasKey(authoritySaveName))) {
+            authority = (String) redisTemplate.opsForValue().get(authoritySaveName);
+        } else {
+            authority = SecurityUtils.generateAuthority(roles, permissions);
+            redisTemplate.opsForValue().set(authoritySaveName, authority, 30, TimeUnit.MINUTES);
+        }
+
+        List<GrantedAuthority> grantedAuthorities = AuthorityUtils.commaSeparatedStringToAuthorityList(authority);
         // 获取用户权限信息并设置到上下文(用户名，密码，权限信息)
         SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(username, null, grantedAuthorities));
 

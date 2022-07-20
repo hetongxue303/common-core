@@ -20,7 +20,7 @@ public class TestController {
 
     @GetMapping("/test")
     @LogAnnotation(module = "测试", operate = "测试项目是否可用")
-    @PreAuthorize("hasRole(admin)")
+    @PreAuthorize("hasAuthority('user:insert')")
     public Result test(@RequestParam String name) {
         return Result.Success().setMessage(name + ",欢迎使用,通用后台管理系统!");
     }

@@ -9,6 +9,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Component;
+import org.springframework.util.ObjectUtils;
 
 import javax.annotation.Resource;
 import javax.servlet.ServletException;
@@ -31,7 +32,7 @@ public class CustomizeLogoutSuccessHandler implements LogoutSuccessHandler {
     @Override
     public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
         // 判断是否有权限信息 有的话删除
-        if (authentication != null) {
+        if (!ObjectUtils.isEmpty(authentication)) {
             new SecurityContextLogoutHandler().logout(request, response, authentication);
         }
         response.setContentType("application/json;charset=utf-8");
@@ -40,6 +41,9 @@ public class CustomizeLogoutSuccessHandler implements LogoutSuccessHandler {
         response.setHeader(Const.AUTHORIZATION_KEY, "");
         // 清空redis中的token信息
         redisTemplate.delete(Const.AUTHORIZATION_KEY);
+        redisTemplate.delete("routers");
+        redisTemplate.delete("menus");
+        redisTemplate.delete("code");
         response.getWriter().println(new ObjectMapper().writeValueAsString(Result.Success().setMessage("注销成功")));
     }
 

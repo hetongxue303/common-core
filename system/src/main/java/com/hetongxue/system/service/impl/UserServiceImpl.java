@@ -9,11 +9,14 @@ import com.hetongxue.system.domain.Permission;
 import com.hetongxue.system.domain.Role;
 import com.hetongxue.system.domain.User;
 import com.hetongxue.system.domain.vo.UserQueryVo;
+import com.hetongxue.system.domain.vo.permission.MenuVo;
+import com.hetongxue.system.domain.vo.permission.RouterVo;
 import com.hetongxue.system.mapper.UserMapper;
 import com.hetongxue.system.service.PermissionService;
 import com.hetongxue.system.service.RoleService;
 import com.hetongxue.system.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -22,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @Description: 用户业务实现
@@ -34,6 +38,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
 
+    private final RedisTemplate<String, Object> redisTemplate;
     private final UserMapper userMapper;
     private final RoleService roleService;
     private final PermissionService permissionService;
@@ -50,10 +55,37 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         List<Role> roles = roleService.selectRoleByUserId(user.getId());
 
         // 生成权限列表
-        String authority = SecurityUtils.generateAuthority(roles, permissions);
+        String authoritySaveName = "code";
+        String authority = "";
+        if (Boolean.TRUE.equals(redisTemplate.hasKey(authoritySaveName))) {
+            authority = (String) redisTemplate.opsForValue().get(authoritySaveName);
+        } else {
+            authority = SecurityUtils.generateAuthority(roles, permissions);
+            redisTemplate.opsForValue().set(authoritySaveName, authority, 30, TimeUnit.MINUTES);
+        }
 
-        return user.setRouters(SecurityUtils.generateRouter(permissions, 0L))
-                .setMenus(SecurityUtils.generateMenu(permissions, 0L))
+        // 生成路由树
+        String routerSaveName = "routers";
+        List<RouterVo> routers = null;
+        if (Boolean.TRUE.equals(redisTemplate.hasKey(routerSaveName))) {
+            routers = (List<RouterVo>) redisTemplate.opsForValue().get(routerSaveName);
+        } else {
+            routers = SecurityUtils.generateRouter(permissions, 0L);
+            redisTemplate.opsForValue().set(routerSaveName, routers, 30, TimeUnit.MINUTES);
+        }
+
+        // 生成菜单树
+        String menuSaveName = "menus";
+        List<MenuVo> menus = null;
+        if (Boolean.TRUE.equals(redisTemplate.hasKey(menuSaveName))) {
+            menus = (List<MenuVo>) redisTemplate.opsForValue().get(menuSaveName);
+        } else {
+            menus = SecurityUtils.generateMenu(permissions, 0L);
+            redisTemplate.opsForValue().set(menuSaveName, routers, 30, TimeUnit.MINUTES);
+        }
+
+        return user.setMenus(menus)
+                .setRouters(routers)
                 .setAuthorities(AuthorityUtils.commaSeparatedStringToAuthorityList(authority));
     }
 
