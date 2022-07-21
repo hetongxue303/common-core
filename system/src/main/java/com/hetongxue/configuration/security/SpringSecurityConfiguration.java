@@ -17,6 +17,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.session.HttpSessionEventPublisher;
 
 /**
  * @Description: SpringSecurity配置类
@@ -36,17 +37,32 @@ public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter {
     private final CustomizeLogoutSuccessHandler logoutSuccessHandler;
     private final CustomizeAccessDeniedHandler accessDeniedHandler;
     private final CustomizeAuthenticationEntryPoint authenticationEntryPoint;
+    private final CustomizeExpiredSessionStrategy expiredSessionStrategy;
     private final UserServiceImpl userDetailsService;
     private final CaptchaFilter captchaFilter;
 
+    /**
+     * 密码加密处理
+     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
+    /**
+     * jwt异常处理
+     */
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() throws Exception {
         return new JwtAuthenticationFilter(authenticationManager());
+    }
+
+    /**
+     * 会话实例记录(新版本可以不用配置 但建议还是加上避免不必要的错误发生)
+     */
+    @Bean
+    public HttpSessionEventPublisher httpSessionEventPublisher() {
+        return new HttpSessionEventPublisher();
     }
 
     /**
@@ -55,20 +71,25 @@ public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
 
-        // 关闭csrf攻击 开启跨域
-        http.csrf().disable().cors()
-                // 放行白名单请求 其余请求全部拦截
-                .and().authorizeRequests().antMatchers(REQUEST_WHITE_LIST).permitAll().anyRequest().authenticated()
-                // 设置表单登录 登录请求地址 登陆参数
+        // 放行白名单请求 其余请求全部拦截
+        http.authorizeRequests().antMatchers(REQUEST_WHITE_LIST).permitAll().anyRequest().authenticated()
+                // 设置表单登录 设置登录请求地址以及登陆参数
                 .and().formLogin().loginProcessingUrl(Const.LOGIN_PATH).usernameParameter(Const.USERNAME).passwordParameter(Const.PASSWORD)
                 // 设置认证成功处理类 和 认证失败处理器
                 .successHandler(loginSuccessHandler).failureHandler(loginFailureHandler)
-                // 开启注销登录 注销请求地址 注销成功处理类
+                // 开启注销登录 注销请求地址 设置注销成功处理类
                 .and().logout().logoutUrl(Const.LOGOUT_PATH).logoutSuccessHandler(logoutSuccessHandler)
                 // 开启异常处理 匿名用户处理类(未登录) 无权访问处理类(已登录 但无权限)
                 .and().exceptionHandling().authenticationEntryPoint(authenticationEntryPoint).accessDeniedHandler(accessDeniedHandler)
-                // 关闭session 不创建session
-                .and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
+                // 关闭csrf攻击 开启跨域
+                .and().csrf().disable().cors()
+                // 开启会话管理 设置创建会话策略
+                .and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                // 设置当前用户可以创建的最大会话数量(默认1) 设置会话过期处理类
+                .maximumSessions(Const.MAXIMUM_SESSIONS).expiredSessionStrategy(expiredSessionStrategy)
+                // 设置阻止登录策略 true:禁止再次登录  false(默认):登陆时会将前一次登录的设备挤下线
+                .maxSessionsPreventsLogin(true).and()
+                .and()
                 // 添加jwt自动登录过滤器
                 .addFilter(jwtAuthenticationFilter())
                 // 添加在UsernamePasswordAuthenticationFilter之前的captchaFilter(登陆之前)

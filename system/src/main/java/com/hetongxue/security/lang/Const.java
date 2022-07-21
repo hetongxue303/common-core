@@ -19,5 +19,6 @@ public class Const {
     public static final String LOGOUT_PATH = "/logout";
     public static final String CAPTCHA_KEY = "captcha";
     public static final String AUTHORIZATION_KEY = "authorization";
+    public static final Integer MAXIMUM_SESSIONS = 1;
 
 }
