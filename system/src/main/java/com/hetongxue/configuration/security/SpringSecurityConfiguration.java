@@ -18,6 +18,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.Collections;
 
 /**
  * @Description: SpringSecurity配置类
@@ -72,26 +77,40 @@ public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
 
         // 放行白名单请求 其余请求全部拦截
-        http.authorizeRequests().antMatchers(REQUEST_WHITE_LIST).permitAll().anyRequest().authenticated()
-                // 设置表单登录 设置登录请求地址以及登陆参数
-                .and().formLogin().loginProcessingUrl(Const.LOGIN_PATH).usernameParameter(Const.USERNAME).passwordParameter(Const.PASSWORD)
-                // 设置认证成功处理类 和 认证失败处理器
+        http.authorizeRequests().antMatchers(REQUEST_WHITE_LIST).permitAll().anyRequest().authenticated();
+
+        // 设置表单登录 设置登录请求地址
+        http.formLogin().loginProcessingUrl(Const.LOGIN_PATH)
+                // 设置登陆参数
+                .usernameParameter(Const.USERNAME).passwordParameter(Const.PASSWORD)
+                // 设置认证成功处理器 和 认证失败处理器
                 .successHandler(loginSuccessHandler).failureHandler(loginFailureHandler)
                 // 开启注销登录 注销请求地址 设置注销成功处理类
-                .and().logout().logoutUrl(Const.LOGOUT_PATH).logoutSuccessHandler(logoutSuccessHandler)
-                // 开启异常处理 匿名用户处理类(未登录) 无权访问处理类(已登录 但无权限)
-                .and().exceptionHandling().authenticationEntryPoint(authenticationEntryPoint).accessDeniedHandler(accessDeniedHandler)
-                // 关闭csrf攻击 开启跨域
-                .and().csrf().disable().cors()
-                // 开启会话管理 设置创建会话策略
-                .and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                // 设置当前用户可以创建的最大会话数量(默认1) 设置会话过期处理类
-                .maximumSessions(Const.MAXIMUM_SESSIONS).expiredSessionStrategy(expiredSessionStrategy)
+                .and().logout().logoutUrl(Const.LOGOUT_PATH).logoutSuccessHandler(logoutSuccessHandler);
+
+        // 开启异常处理
+        http.exceptionHandling()
+                // 设置匿名用户处理类(未登录) 无权访问处理类(已登录 但无权限)
+                .authenticationEntryPoint(authenticationEntryPoint).accessDeniedHandler(accessDeniedHandler);
+
+        // 开启跨域 以及对应配置
+        http.cors().configurationSource(corsConfigurationSource())
+                // 关闭csrf攻击
+                .and().csrf().disable();
+
+        // 开启会话管理
+        http.sessionManagement()
+                // 设置创建会话策略
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                // 设置当前用户可以创建的最大会话数量(默认1)
+                .maximumSessions(Const.MAXIMUM_SESSIONS)
+                // 设置会话过期处理类
+                .expiredSessionStrategy(expiredSessionStrategy)
                 // 设置阻止登录策略 true:禁止再次登录  false(默认):登陆时会将前一次登录的设备挤下线
-                .maxSessionsPreventsLogin(true).and()
-                .and()
-                // 添加jwt自动登录过滤器
-                .addFilter(jwtAuthenticationFilter())
+                .maxSessionsPreventsLogin(true);
+
+        // 添加jwt自动登录过滤器
+        http.addFilter(jwtAuthenticationFilter())
                 // 添加在UsernamePasswordAuthenticationFilter之前的captchaFilter(登陆之前)
                 .addFilterBefore(captchaFilter, UsernamePasswordAuthenticationFilter.class);
     }
@@ -103,6 +122,20 @@ public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter {
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         // 设置认证处理类(即service) 设置加密策略
         auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
+    }
+
+    /**
+     * 解决添加security后 springboot自身配置的跨域不生效问题(主要由于security的过滤器优先级高于springboot的优先级)
+     */
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedHeaders(Collections.singletonList("*"));
+        configuration.setAllowedMethods(Collections.singletonList("*"));
+        configuration.setAllowedOrigins(Collections.singletonList("*"));
+        configuration.setMaxAge(3600L);
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 
 }
